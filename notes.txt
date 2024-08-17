@@ -1,0 +1,5 @@
+ backend -->  npm i express dotenv cookie-parser bcryptjs mongoose socket.io jsonwebtoken
+
+
+ 36min
+ 50-1.06, 1.30,
