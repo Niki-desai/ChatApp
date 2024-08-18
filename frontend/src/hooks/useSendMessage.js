@@ -1,29 +1,25 @@
 import { useState } from "react";
+import useConversation from "../zustand/useConversation";
 import toast from "react-hot-toast";
-import { useAuthContext } from "../context/AuthContext";
 
-const useLogin = () => {
+const useSendMessage = () => {
     const [loading, setLoading] = useState(false);
-    const { setAuthUser } = useAuthContext();
+    const { messages, setMessages, selectedConversation } = useConversation();
 
-    const login = async (username, password) => {
-        const success = handleInputErrors(username, password);
-        if (!success) return;
+    const sendMessage = async (message) => {
         setLoading(true);
         try {
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch(`/api/messages/send/${selectedConversation._id}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message }),
             });
-
             const data = await res.json();
-            if (data.error) {
-                throw new Error(data.error);
-            }
+            if (data.error) throw new Error(data.error);
 
-            localStorage.setItem("chat-user", JSON.stringify(data));
-            setAuthUser(data);
+            setMessages([...messages, data]);
         } catch (error) {
             toast.error(error.message);
         } finally {
@@ -31,15 +27,6 @@ const useLogin = () => {
         }
     };
 
-    return { loading, login };
+    return { sendMessage, loading };
 };
-export default useLogin;
-
-function handleInputErrors(username, password) {
-    if (!username || !password) {
-        toast.error("Please fill in all fields");
-        return false;
-    }
-
-    return true;
-}
+export default useSendMessage;
